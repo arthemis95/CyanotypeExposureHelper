@@ -126,7 +126,7 @@ void loop() {
     display.println(UV_index - 1);
     display.print("Target Exp: ");
     display.print(target_exposure/2);
-    display.println(" UVs");
+    display.println(" [UVs]");
     break;
 
   // Exposing the Cyanotype
