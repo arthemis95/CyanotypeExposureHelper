@@ -4,7 +4,7 @@ This is a tiny, shitty project helping me to properly expose Cyanotypes. The mor
 
 However the sun comes with certain issues. Like not having a constant output, because of time of day, season, or cloud coverage. I've had decent luck adjusting my exposure time by running tests on a bright sunny day with an UV Index of 8, writing down the required exposure, and multiply my exposure time by four on days with an UV Index of 2. Which makes sense, as the UV Index scale actually is linear, and correlates with the absolute amount of power in the UV. 
 
-If it isn't clear yet, this relies on (somewhat) cheap UV sensor that are designed to linearly correlate their output to the current UV Index. 
+If it isn't clear yet, this relies on (somewhat) cheap UV sensor that are designed to linearly correlate their output to the current UV Index. So the goal is to integrate (add) the current UV Index over time (every half second or so), until a certain cumulative exposure is reached. For this I am coining the unit "UV Index Seconds", and I'm pulling the (adjustable) target value of 1500 UV Index Seconds }\[UVs\] out of my arse. (Admittedly, that probably is on the high side, I suspect 1350 UVs might be a better initial value, but maybe you are fancy and put a some protective transparent element over the sensor, the error should just be a linear offset.)
 
 ## Required Hardware
 
