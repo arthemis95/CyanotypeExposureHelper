@@ -57,8 +57,6 @@ void setup() {
   pinMode(DOWN, INPUT_PULLUP);
   pinMode(ENTER, INPUT_PULLUP);
 
-  Serial.begin(9600);
-
   digitalWrite(12, LOW);
 
 }
@@ -81,7 +79,7 @@ void loop() {
     {
       // Checking for long press
       up_held++;
-      target_exposure += up_held > 20 ? 100 : 10;
+      target_exposure += constrain(up_held > 20 ? 100 : 10, 0, INTMAX_MAX);
       delay(50);
     }
     else
@@ -124,11 +122,11 @@ void loop() {
     display.setCursor(0, 17);
     
     UV_index = analogRead(A7) * (50.0 / 1023.0);
-    Serial.println(UV_index);
     display.print("UV Index: ");
     display.println(UV_index - 1);
     display.print("Target Exp: ");
-    display.println(target_exposure);
+    display.print(target_exposure/2);
+    display.println(" UVs");
     break;
 
   // Exposing the Cyanotype
@@ -136,7 +134,7 @@ void loop() {
 
     // Measuring UV
     UV_index = analogRead(A7) * (50.0 / 1023.0);
-    current_exposure += UV_index + 150;
+    current_exposure += UV_index;
 
     // Setting up Display
     display.println("!EXPOSING!");
@@ -148,7 +146,7 @@ void loop() {
     display.print("UV Index: ");
     display.println(UV_index - 1);
     display.print("Exposed: ");
-    display.print(100.0 * current_exposure / target_exposure);
+    display.print(constrain(100.0 * current_exposure / target_exposure, 0, 100));
     display.println("%");
 
     // Checking for cancellation
