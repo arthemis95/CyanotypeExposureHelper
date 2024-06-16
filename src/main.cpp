@@ -42,22 +42,23 @@ void setup() {
   display.println("the Cyanotype");
   display.println("Exposure Helper");
   display.display();
-  delay(5000);
+  delay(2500);
 
   // Default target exposure
-  target_exposure = 3000;
+  target_exposure = 2700;
 
 
   // put your setup code here, to run once:
   pinMode(UV, INPUT_PULLUP);
-  pinMode(VOLTAGE, INPUT);
-  pinMode(12, OUTPUT);
+  pinMode(VOLTAGE, INPUT_PULLUP);
   pinMode(11, OUTPUT);
   pinMode(UP, INPUT_PULLUP);
   pinMode(DOWN, INPUT_PULLUP);
   pinMode(ENTER, INPUT_PULLUP);
 
-  digitalWrite(12, LOW);
+  // Make sure you are using 5V as reference voltage
+  analogReference(EXTERNAL);
+
 
 }
 void loop() {
@@ -79,8 +80,8 @@ void loop() {
     {
       // Checking for long press
       up_held++;
-      target_exposure += constrain(up_held > 20 ? 100 : 10, 0, INTMAX_MAX);
-      delay(50);
+      target_exposure += constrain(up_held > 10 ? 100 : 10, 0, INTMAX_MAX);
+      delay(100);
     }
     else
     {
@@ -92,8 +93,8 @@ void loop() {
     {
       // Checking for long press
       down_held++;
-      target_exposure -= constrain(down_held > 20 ? 100 : 10, 0, INTMAX_MAX);
-      delay(50);
+      target_exposure -= constrain(down_held > 10 ? 100 : 10, 0, INTMAX_MAX);
+      delay(100);
     }
     else
     {
@@ -106,9 +107,9 @@ void loop() {
       current_exposure = 0;
       cancel = 0;
       state = EXPOSING;
-      delay(50);
+      delay(100);
     }
-    else
+    if(digitalRead(ENTER))
     {
       cancel = 0;
     }
@@ -124,7 +125,7 @@ void loop() {
     UV_index = analogRead(A7) * (50.0 / 1023.0);
     display.print("UV Index: ");
     display.println(UV_index - 1);
-    display.print("Target Exp: ");
+    display.println("Target Exp: ");
     display.print(target_exposure/2);
     display.println(" [UVs]");
     break;
@@ -176,6 +177,7 @@ void loop() {
   // All done! Sounding the alarm! 
   case EXPOSED:
 
+    blk++;
     // BLINK ON!
     if(blk % 2)
     {
@@ -208,7 +210,7 @@ void loop() {
     state = INIT;
     break;
   }
-  display.setCursor(75, 55);
+  display.setCursor(70, 55);
   display.setTextSize(1);
   display.print("Bat: ");
   display.print(estimate_soc());
