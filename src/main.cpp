@@ -18,8 +18,10 @@
 
 #define UV A7
 #define VOLTAGE A1
+#define BEEPER 11
 
 int estimate_soc();
+float get_UV_index();
 
 Adafruit_SSD1306 display(OLED_WIDTH, OLED_HEIGHT);
 
@@ -45,13 +47,13 @@ void setup() {
   delay(2500);
 
   // Default target exposure
-  target_exposure = 2700;
+  target_exposure = 1100;
 
 
   // put your setup code here, to run once:
   pinMode(UV, INPUT_PULLUP);
   pinMode(VOLTAGE, INPUT_PULLUP);
-  pinMode(11, OUTPUT);
+  pinMode(BEEPER, OUTPUT);
   pinMode(UP, INPUT_PULLUP);
   pinMode(DOWN, INPUT_PULLUP);
   pinMode(ENTER, INPUT_PULLUP);
@@ -64,11 +66,12 @@ void setup() {
 void loop() {
 
   // Static display
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(WHITE);
-    display.setCursor(0, 0);
-    display.println("CEH");
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.println("CEH");
+  UV_index = get_UV_index();
   switch (state)
   {
   // Pre Exposure Setup
@@ -80,7 +83,7 @@ void loop() {
     {
       // Checking for long press
       up_held++;
-      target_exposure += constrain(up_held > 10 ? 100 : 10, 0, INTMAX_MAX);
+      target_exposure += constrain(up_held > 10 ? 50 : 5, 0, INTMAX_MAX);
       delay(100);
     }
     else
@@ -93,7 +96,7 @@ void loop() {
     {
       // Checking for long press
       down_held++;
-      target_exposure -= constrain(down_held > 10 ? 100 : 10, 0, INTMAX_MAX);
+      target_exposure -= constrain(down_held > 10 ? 50 : 5, 0, INTMAX_MAX);
       delay(100);
     }
     else
@@ -122,20 +125,17 @@ void loop() {
     display.setTextColor(WHITE);
     display.setCursor(0, 17);
     
-    UV_index = analogRead(A7) * (50.0 / 1023.0);
     display.print("UV Index: ");
-    display.println(UV_index - 1);
+    display.println(UV_index > 1. ? UV_index - 1 : 0);
     display.println("Target Exp: ");
-    display.print(target_exposure/2);
+    display.print(target_exposure);
     display.println(" [UVs]");
     break;
 
   // Exposing the Cyanotype
   case EXPOSING:
 
-    // Measuring UV
-    UV_index = analogRead(A7) * (50.0 / 1023.0);
-    current_exposure += UV_index;
+    current_exposure += UV_index / 2.;
 
     // Setting up Display
     display.println("!EXPOSING!");
@@ -145,7 +145,7 @@ void loop() {
     display.setCursor(0, 34);
 
     display.print("UV Index: ");
-    display.println(UV_index - 1);
+    display.println(UV_index > 1. ? UV_index - 1 : 0);
     display.print("Exposed: ");
     display.print(constrain(100.0 * current_exposure / target_exposure, 0, 100));
     display.println("%");
@@ -187,20 +187,21 @@ void loop() {
     display.println("!DONE!");
 
     // Starting to beep!
-    tone(11, 50);
+    tone(BEEPER, 50);
     delay(500);
     }
     else
     //BLINK OFF
     {
     //Stopping the tone
-    noTone(11);
+    noTone(BEEPER);
     delay(250);
     }
     // Returning to INIT
     if(!digitalRead(ENTER))
     {
       state = INIT;
+      noTone(BEEPER);
       cancel = -1;
       delay(50);
     }
@@ -221,4 +222,11 @@ void loop() {
 
 int estimate_soc() {
     return constrain(map(analogRead(VOLTAGE), 613, 858, 0, 100), 0, 100);
+}
+
+float get_UV_index(){
+  // I know that this does ignore the the -1 offset specified, but this sensor
+  // actually reads 0V when there is no UV, so we would get a negative index
+  // For display purpose I've applied the offset, but clamped clamped it to zero
+  return analogRead(UV) * (50.0 / 1024.0);
 }

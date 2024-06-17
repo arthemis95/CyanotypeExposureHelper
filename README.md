@@ -6,7 +6,7 @@ However the sun comes with certain issues. Like not having a constant output, be
 
 If it isn't clear yet, this relies on a (somewhat) cheap UV sensor that are designed to linearly correlate their output to the current UV Index. So the goal is to integrate (add) the current UV Index over time (every half second or so), until a certain cumulative exposure is reached, to then loudly beep at you.
 
-For this I am coining the unit "UV Index Seconds" \[UVs\], and I'm pulling the (adjustable) target value of 1500 UVs out of my arse. (Admittedly, that probably is on the high side, I suspect 1350 UVs might be a better initial value, but maybe you are fancy and put a some protective transparent element over the sensor, the error should just be a linear offset.)
+For this I am coining the unit "UV Index Seconds" \[UVs\], and I'm pulling the (adjustable) target value of 1100 UVs out of my arse. (Some quick and dirty tests on a sunny day have lead me to believe this might be the correct ballpark. However it still is to be seen if this holds true for cloudy days. Maybe you are fancy and put a some protective transparent element over the sensor, the error should just be a linear offset.)
 
 ## Required Hardware
 
@@ -26,7 +26,10 @@ Figure out how to assemble this mess of wires and buttons into a coherent form (
 
 ## FAQ
 Q: Does it actually work?
-A: I don't know, I haven't gotten around to test it yet.
+A: Kinda? I've done some preliminary testing, and it seems promising.
+
+Q: Isn't this vulnerable to the angle the light hits the sensor?
+A: Yes, keep that in mind, maybe put a tiny lense on it to improve the detection angle.
 
 Q: Why are you doing this instead of building an exposure chamber?
 A: That sounds boring.
